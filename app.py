@@ -4,7 +4,7 @@ import os
 
 from flask import Flask, request, redirect, render_template
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User
+from models import db, connect_db, User, DEFAULT_IMAGE_URL
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -76,7 +76,7 @@ def handle_edit_user(user_id):
     user.first_name = request.form["first_name"]
     user.last_name = request.form["last_name"]
     user.image_url = (request.form["image_url"]
-                      if request.form["image_url"] else user.image_url)
+                      if request.form["image_url"] else DEFAULT_IMAGE_URL)
     # import default image
 
     db.session.add(user)
