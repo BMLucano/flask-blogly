@@ -59,3 +59,46 @@ class UserViewTestCase(TestCase):
             self.assertIn("test1_first", html)
             self.assertIn("test1_last", html)
 
+    def test_create_user(self):
+        with app.test_client() as c:
+            d = {"first_name": "test2_first", "last_name": "test2_last", "image_url": "w"}
+            resp = c.post("/users/new", data=d, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn("test2_first", html)
+            self.assertIn("test2_last", html)
+
+    def test_delete_user(self):
+        with app.test_client() as c:
+            resp = c.post(f"/users/{self.user_id}/delete", follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertNotIn("test1_first", html)
+            self.assertNotIn("test1_last", html)
+
+    def test_show_edit_form(self):
+        with app.test_client() as c:
+            resp = c.get(f"/users/{self.user_id}/edit")
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn("<h1>Edit a user</h1>", html)
+
+    def test_edit_user(self):
+        with app.test_client() as c:
+            d = {"first_name": "test1_edited_first", "last_name": "test1_edited_last", "image_url": "w"}
+            resp = c.post(f"/users/{self.user_id}/edit", data=d, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn("test1_edited_first", html)
+            self.assertIn("test1_edited_last", html)
+
+    def test_show_user_details(self):
+        with app.test_client() as c:
+            resp = c.get(f"/users/{self.user_id}")
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+            self.assertIn(f"<h1> test1_first test1_last</h1>", html)
+
+
+
+
