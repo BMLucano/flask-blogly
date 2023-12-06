@@ -10,15 +10,15 @@
 <form action="/users/{{ user.id }}/edit" method="POST">
   <div>
     <label>First Name</label>
-    <input name="first_name">
+    <input name="first_name" value="{{ user.first_name }}">
   </div>
   <div>
     <label>Last Name</label>
-    <input name="last_name">
+    <input name="last_name" value="{{ user.last_name }}">
   </div>
   <div>
     <label>Image URL</label>
-    <input name="image_url">
+    <input name="image_url" value="{{ user.image_url }}">
   </div>
   <button>Save</button>
 </form>
