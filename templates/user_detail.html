@@ -8,7 +8,9 @@
 
   <img src="{{ user.image_url }}">
   <h1> {{ user.first_name }} {{ user.last_name }}</h1>
-  <button action = "/users/{{ user.id }}/edit">Edit</button>
-  <button action = "/users/{{ user.id }}/delete" method="POST">Delete</button>
+  <button><a href="/users/{{ user.id }}/edit">Edit</a></button>
+  <form  action = "/users/{{ user.id }}/delete" method="POST">
+    <button>Delete</button>
+  </form>
 
 {% endblock %}
