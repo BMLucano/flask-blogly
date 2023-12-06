@@ -88,10 +88,13 @@ def handle_edit_user(user_id):
 
 @app.post("/users/<int:user_id>/delete")
 def handle_delete_user(user_id):
-    """Removes user's info from the database then redirects to /users"""
+    """Removes user's posts, then user's info from the database
+    then redirects to /users"""
 
     user = User.query.get(user_id)
+    # user_posts = user.posts
 
+    [db.session.delete(post) for post in user.posts]
     db.session.delete(user)
     db.session.commit()
 
@@ -113,7 +116,7 @@ def handle_post_form(user_id):
     user = User.query.get(user_id)
     new_post = Post(title=request.form["title"],
                     content=request.form["content"],
-                    user=user.id)
+                    user_id=user.id)
 
     db.session.add(new_post)
     db.session.commit()
@@ -152,10 +155,12 @@ def delete_post(post_id):
 
     post = Post.query.get(post_id)
 
+    user_id = post.user.id
+
     db.session.delete(post)
     db.session.commit()
 
-    return redirect(f"/users/{post.user.id}")
+    return redirect(f"/users/{user_id}")
 
 
 

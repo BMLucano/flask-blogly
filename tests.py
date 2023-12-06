@@ -2,7 +2,7 @@ import os
 
 os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
 
-from models import DEFAULT_IMAGE_URL, User
+from models import DEFAULT_IMAGE_URL, User, Post
 from app import app, db
 from unittest import TestCase
 
@@ -29,6 +29,7 @@ class UserViewTestCase(TestCase):
         # As you add more models later in the exercise, you'll want to delete
         # all of their records before each test just as we're doing with the
         # User model below.
+        Post.query.delete()
         User.query.delete()
 
         test_user = User(
@@ -40,11 +41,23 @@ class UserViewTestCase(TestCase):
         db.session.add(test_user)
         db.session.commit()
 
+        test_post = Post(
+            title="test1_title",
+            content="test1_content",
+            user_id=test_user.id
+        )
+
+
+        db.session.add(test_post)
+        db.session.commit()
+
         # We can hold onto our test_user's id by attaching it to self (which is
         # accessible throughout this test class). This way, we'll be able to
         # rely on this user in our tests without needing to know the numeric
         # value of their id, since it will change each time our tests are run.
+
         self.user_id = test_user.id
+        self.post_id = test_post.id
 
     def tearDown(self):
         """Clean up any fouled transaction."""
@@ -119,4 +132,17 @@ class UserViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
 
-            self.assertIn(f"<h1> test1_first test1_last</h1>", html)
+            self.assertIn("<h1> test1_first test1_last</h1>", html)
+            self.assertIn("test1_title</a></li>", html)
+
+    def test_show_post(self):
+        """Test that post displays"""
+
+        with app.test_client() as c:
+            resp = c.get(f"/posts/{self.post_id}")
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+
+            self.assertIn("<h1>test1_title</h1>", html)
+            self.assertIn("test1_content", html)
+
