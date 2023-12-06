@@ -66,7 +66,7 @@ def show_edit_user(user_id):
     """Show form to edit a user's profile, with buttons to confirm or cancel"""
 
     user = User.query.get_or_404(user_id)
-    return render_template("edit.html", user=user)
+    return render_template("edit_user.html", user=user)
 
 @app.post("/users/<int:user_id>/edit")
 def handle_edit_user(user_id):

@@ -27,7 +27,8 @@ class User(db.Model):
     id = db.Column(
         db.Integer,
         primary_key=True,
-        autoincrement=True)
+        autoincrement=True
+    )
 
     first_name = db.Column(
         db.String(20),
@@ -44,5 +45,48 @@ class User(db.Model):
         nullable=False,
         default=DEFAULT_IMAGE_URL
     )
+
+class Post(db.Model):
+    """A post made by a user
+
+    Fields:
+    Id: primary key
+    Title: String(150)
+    Content: Text
+    Created_at: Date, default date of post
+    user_id - foreign key to users
+    """
+
+    __tablename__ = 'posts'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    title = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=db.func.now()
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id'),
+        nullable=False
+    )
+
+
 
 
