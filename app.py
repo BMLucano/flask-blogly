@@ -45,7 +45,8 @@ def handle_create_user():
     new_user = User(
         first_name = request.form["first_name"],
         last_name = request.form["last_name"],
-        image_url = request.form["image_url"]
+        image_url = (request.form["image_url"]
+                     if request.form["image_url"] else None)
     )
 
     db.session.add(new_user)
@@ -57,14 +58,14 @@ def handle_create_user():
 def show_user_detail(user_id):
     """Show details about a user with buttons to edit or delete profile."""
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     return render_template("user_detail.html", user=user)
 
 @app.get("/users/<int:user_id>/edit")
 def show_edit_user(user_id):
     """Show form to edit a user's profile, with buttons to confirm or cancel"""
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     return render_template("edit.html", user=user)
 
 @app.post("/users/<int:user_id>/edit")
@@ -72,9 +73,11 @@ def handle_edit_user(user_id):
     """Edits user's data in the database then redirects to /users"""
 
     user = User.query.get(user_id)
-    user.first_name = request.form.get("first_name", user.first_name)
-    user.last_name = request.form.get("last_name", user.last_name)
-    user.image_url = request.form.get("image_url", user.image_url)
+    user.first_name = request.form["first_name"]
+    user.last_name = request.form["last_name"]
+    user.image_url = (request.form["image_url"]
+                      if request.form["image_url"] else user.image_url)
+    # import default image
 
     db.session.add(user)
     db.session.commit()

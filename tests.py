@@ -1,11 +1,10 @@
+
 import os
 
 os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
-
-from unittest import TestCase
-
-from app import app, db
 from models import DEFAULT_IMAGE_URL, User
+from app import app, db
+from unittest import TestCase
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
@@ -52,53 +51,72 @@ class UserViewTestCase(TestCase):
         db.session.rollback()
 
     def test_list_users(self):
+        """Test that user list displays and shows user"""
+
         with app.test_client() as c:
             resp = c.get("/users")
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
+
             self.assertIn("test1_first", html)
             self.assertIn("test1_last", html)
 
     def test_create_user(self):
+        """Test that new user gets added to user list and request redirects"""
+
         with app.test_client() as c:
-            d = {"first_name": "test2_first", "last_name": "test2_last", "image_url": "w"}
+            d = {"first_name": "test2_first",
+                 "last_name": "test2_last",
+                 "image_url": "w"}
             resp = c.post("/users/new", data=d, follow_redirects=True)
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
+
             self.assertIn("test2_first", html)
             self.assertIn("test2_last", html)
 
     def test_delete_user(self):
+        """Test that user is deleted and request redirects"""
+
         with app.test_client() as c:
-            resp = c.post(f"/users/{self.user_id}/delete", follow_redirects=True)
+            resp = c.post(f"/users/{self.user_id}/delete",
+                          follow_redirects=True)
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
+
             self.assertNotIn("test1_first", html)
             self.assertNotIn("test1_last", html)
 
     def test_show_edit_form(self):
+        """Test that edit form displays"""
+
         with app.test_client() as c:
             resp = c.get(f"/users/{self.user_id}/edit")
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
+
             self.assertIn("<h1>Edit a user</h1>", html)
 
     def test_edit_user(self):
+        """Test that user is edited and request redirects."""
+
         with app.test_client() as c:
-            d = {"first_name": "test1_edited_first", "last_name": "test1_edited_last", "image_url": "w"}
-            resp = c.post(f"/users/{self.user_id}/edit", data=d, follow_redirects=True)
+            d = {"first_name": "test1_edited_first",
+                 "last_name": "test1_edited_last", "image_url": "w"}
+            resp = c.post(f"/users/{self.user_id}/edit",
+                          data=d, follow_redirects=True)
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
+
             self.assertIn("test1_edited_first", html)
             self.assertIn("test1_edited_last", html)
 
     def test_show_user_details(self):
+        """Test that user details display"""
+
         with app.test_client() as c:
             resp = c.get(f"/users/{self.user_id}")
             self.assertEqual(resp.status_code, 200)
             html = resp.get_data(as_text=True)
+
             self.assertIn(f"<h1> test1_first test1_last</h1>", html)
-
-
-
-
