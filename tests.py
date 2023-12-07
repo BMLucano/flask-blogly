@@ -1,7 +1,7 @@
-
 import os
 
 os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
+
 from models import DEFAULT_IMAGE_URL, User
 from app import app, db
 from unittest import TestCase

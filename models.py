@@ -87,6 +87,8 @@ class Post(db.Model):
         nullable=False
     )
 
+    user = db.relationship('User', backref="posts")
+
 
 
 
