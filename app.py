@@ -74,7 +74,7 @@ def show_edit_user(user_id):
 def handle_edit_user(user_id):
     """Edits user's data in the database then redirects to /users"""
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     user.first_name = request.form["first_name"]
     user.last_name = request.form["last_name"]
     user.image_url = (request.form["image_url"]
@@ -91,9 +91,10 @@ def handle_delete_user(user_id):
     """Removes user's posts, then user's info from the database
     then redirects to /users"""
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     # user_posts = user.posts
 
+    #would this be better off as a for in loop..what are the conventions
     [db.session.delete(post) for post in user.posts]
     db.session.delete(user)
     db.session.commit()
@@ -101,7 +102,6 @@ def handle_delete_user(user_id):
     return redirect("/users")
 
 ###Post routes###
-
 @app.get("/users/<int:user_id>/posts/new")
 def show_new_post_form(user_id):
     """Show form for new post"""
@@ -113,7 +113,7 @@ def show_new_post_form(user_id):
 def handle_post_form(user_id):
     """Handle new post form. Add post to DB and redirect to user detail page"""
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
     new_post = Post(title=request.form["title"],
                     content=request.form["content"],
                     user_id=user.id)
@@ -121,6 +121,7 @@ def handle_post_form(user_id):
     db.session.add(new_post)
     db.session.commit()
 
+    #flash message to show redirect..
     return redirect(f"/users/{user_id}")
 
 @app.get("/posts/<int:post_id>")
@@ -140,7 +141,8 @@ def show_edit_post_form(post_id):
 @app.post("/posts/<int:post_id>/edit")
 def handle_edit_post(post_id):
     """Handle edit post form. Update DB. Redirect to post details"""
-    post = Post.query.get(post_id)
+
+    post = Post.query.get_or_404(post_id)
     post.title = request.form["title"]
     post.content = request.form["content"]
 
@@ -153,7 +155,7 @@ def handle_edit_post(post_id):
 def delete_post(post_id):
     """Delete post from DB. Redirect to user detail page"""
 
-    post = Post.query.get(post_id)
+    post = Post.query.get_or_404(post_id)
 
     user_id = post.user.id
 

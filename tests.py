@@ -22,7 +22,6 @@ app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
 db.drop_all()
 db.create_all()
 
-
 class UserViewTestCase(TestCase):
     """Test views for users."""
 
@@ -137,6 +136,50 @@ class UserViewTestCase(TestCase):
 
             self.assertIn("<h1> test1_first test1_last</h1>", html)
             self.assertIn("test1_title</a></li>", html)
+
+
+
+class PostViewTestCase(TestCase):
+    """Test views for posts."""
+
+    def setUp(self):
+        """Create test client, add sample data."""
+
+        # As you add more models later in the exercise, you'll want to delete
+        # all of their records before each test just as we're doing with the
+        # User model below.
+        Post.query.delete()
+        User.query.delete()
+
+        test_user = User(
+            first_name="test1_first",
+            last_name="test1_last",
+            image_url=None,
+        )
+
+        db.session.add(test_user)
+        db.session.commit()
+
+        test_post = Post(
+            title="test1_title",
+            content="test1_content",
+            user_id=test_user.id
+        )
+
+        db.session.add(test_post)
+        db.session.commit()
+
+        # We can hold onto our test_user's id by attaching it to self (which is
+        # accessible throughout this test class). This way, we'll be able to
+        # rely on this user in our tests without needing to know the numeric
+        # value of their id, since it will change each time our tests are run.
+
+        self.user_id = test_user.id
+        self.post_id = test_post.id
+
+    def tearDown(self):
+        """Clean up any fouled transaction."""
+        db.session.rollback()
 
     ### tests for posts###
     def test_show_post(self):
