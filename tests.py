@@ -2,9 +2,12 @@ import os
 
 os.environ["DATABASE_URL"] = "postgresql:///blogly_test"
 
-from models import DEFAULT_IMAGE_URL, User, Post
-from app import app, db
 from unittest import TestCase
+from app import app, db
+from models import DEFAULT_IMAGE_URL, User, Post
+
+
+
 
 # Make Flask errors be real errors, rather than HTML pages with error info
 app.config['TESTING'] = True
@@ -47,7 +50,6 @@ class UserViewTestCase(TestCase):
             user_id=test_user.id
         )
 
-
         db.session.add(test_post)
         db.session.commit()
 
@@ -63,6 +65,7 @@ class UserViewTestCase(TestCase):
         """Clean up any fouled transaction."""
         db.session.rollback()
 
+    ### tests for users
     def test_list_users(self):
         """Test that user list displays and shows user"""
 
@@ -135,6 +138,7 @@ class UserViewTestCase(TestCase):
             self.assertIn("<h1> test1_first test1_last</h1>", html)
             self.assertIn("test1_title</a></li>", html)
 
+    ### tests for posts###
     def test_show_post(self):
         """Test that post displays"""
 
@@ -146,3 +150,43 @@ class UserViewTestCase(TestCase):
             self.assertIn("<h1>test1_title</h1>", html)
             self.assertIn("test1_content", html)
 
+    def test_create_post(self):
+        """Test that new post gets added to post list
+        in user details and request redirects"""
+
+        with app.test_client() as c:
+            d = {"title": "test2_title",
+                 "content": "test2_content",
+                 "user_id": self.user_id}
+            resp = c.post(f"/users/{self.user_id}/posts/new",
+                          data=d, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+
+            self.assertIn("test2_title", html)
+
+    def test_edit_post(self):
+        """Test that post is edited and request redirects"""
+
+        with app.test_client() as c:
+            d = {"title": "test1_title_edited",
+                 "content": "test1_content_edited",
+                 "user_id": self.user_id}
+            resp = c.post(f"/posts/{self.post_id}/edit",
+                          data=d,
+                          follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+
+            self.assertIn("<h1>test1_title_edited</h1>", html)
+            self.assertIn("test1_content_edited", html)
+
+    def test_delete_post(self):
+        """Test that post is deleted and request redirects"""
+
+        with app.test_client() as c:
+            resp = c.post(f"/posts/{self.post_id}/delete",follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            html = resp.get_data(as_text=True)
+
+            self.assertNotIn("test1_title", html)
